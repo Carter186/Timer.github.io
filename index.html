@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Daily Counter</title>
+  <style>
+    .counter-container {
+      text-align: center;
+      margin-top: 50px;
+    }
+
+    #counter {
+      font-size: 36px;
+    }
+
+    #reset-button {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="counter-container">
+    <p id="counter">0</p>
+    <button id="reset-button">Reset</button>
+  </div>
+  <script>
+    const counterElement = document.getElementById('counter');
+    const resetButton = document.getElementById('reset-button');
+
+    // Get the current count and last update date from localStorage
+    let count = parseInt(localStorage.getItem('count')) || 0;
+    let lastUpdateDate = localStorage.getItem('lastUpdateDate');
+
+    // Set the current count on the page
+    counterElement.textContent = count;
+
+    // Function to check if it's a new day and update the count
+    const updateCount = () => {
+      const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+
+      // If it's a new day, update the count
+      if (lastUpdateDate !== today) {
+        count++;
+        counterElement.textContent = count;
+        localStorage.setItem('count', count);
+        localStorage.setItem('lastUpdateDate', today); // Store today's date
+      }
+    };
+
+    // Call updateCount to check if the count needs to be updated
+    updateCount();
+
+    // Reset the count on button click
+    resetButton.addEventListener('click', () => {
+      count = 0;
+      counterElement.textContent = count;
+      localStorage.setItem('count', count);
+      localStorage.setItem('lastUpdateDate', new Date().toISOString().split('T')[0]); // Reset the last update date
+    });
+  </script>
+</body>
+</html>
