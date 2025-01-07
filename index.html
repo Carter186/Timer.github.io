@@ -1,66 +1,73 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Daily Counter</title>
-  <style>
-    .counter-container {
-      text-align: center;
-      margin-top: 50px;
-    }
-
-    #counter {
-      font-size: 36px;
-    }
-
-    #reset-button {
-      padding: 10px 20px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Counter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .counter {
+            font-size: 2em;
+            margin: 20px;
+        }
+        .record {
+            font-size: 1.2em;
+            margin: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+        }
+    </style>
 </head>
 <body>
-  <div class="counter-container">
-    <p id="counter">0</p>
-    <button id="reset-button">Reset</button>
-  </div>
-  <script>
-    const counterElement = document.getElementById('counter');
-    const resetButton = document.getElementById('reset-button');
+	<h1>Time since learning something illegal.</h1>
+    <div class="counter" id="counter">00:00:00:00</div>
+    <div class="record" id="record">Longest Time: 00:00:00:00</div>
+    <button onclick="resetCounter()">Reset</button>
 
-    // Get the current count and last update date from localStorage
-    let count = parseInt(localStorage.getItem('count')) || 0;
-    let lastUpdateDate = localStorage.getItem('lastUpdateDate');
+    <script>
+        let startTime = Date.now();
+        let interval;
+        let longestTime = localStorage.getItem('longestTime') || 0;
 
-    // Set the current count on the page
-    counterElement.textContent = count;
+        function formatTime(ms) {
+            let totalSeconds = Math.floor(ms / 1000);
+            let days = Math.floor(totalSeconds / 86400);
+            totalSeconds %= 86400;
+            let hours = Math.floor(totalSeconds / 3600);
+            totalSeconds %= 3600;
+            let minutes = Math.floor(totalSeconds / 60);
+            let seconds = totalSeconds % 60;
+            return `${String(days).padStart(2, '0')}:${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
 
-    // Function to check if it's a new day and update the count
-    const updateCount = () => {
-      const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+        function updateCounter() {
+            let elapsedTime = Date.now() - startTime;
+            document.getElementById('counter').innerText = formatTime(elapsedTime);
 
-      // If it's a new day, update the count
-      if (lastUpdateDate !== today) {
-        count++;
-        counterElement.textContent = count;
-        localStorage.setItem('count', count);
-        localStorage.setItem('lastUpdateDate', today); // Store today's date
-      }
-    };
+            if (elapsedTime > longestTime) {
+                longestTime = elapsedTime;
+                localStorage.setItem('longestTime', longestTime);
+                document.getElementById('record').innerText = 'Longest Time: ' + formatTime(longestTime);
+            }
+        }
 
-    // Call updateCount to check if the count needs to be updated
-    updateCount();
+        function resetCounter() {
+            clearInterval(interval);
+            startTime = Date.now();
+            interval = setInterval(updateCounter, 1000);
+        }
 
-    // Reset the count on button click
-    resetButton.addEventListener('click', () => {
-      count = 0;
-      counterElement.textContent = count;
-      localStorage.setItem('count', count);
-      localStorage.setItem('lastUpdateDate', new Date().toISOString().split('T')[0]); // Reset the last update date
-    });
-  </script>
+        document.getElementById('record').innerText = 'Longest Time: ' + formatTime(longestTime);
+        interval = setInterval(updateCounter, 1000);
+    </script>
 </body>
 </html>
